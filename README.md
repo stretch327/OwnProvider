@@ -10,12 +10,11 @@ go build -o ownprovider
 ```
 
 ```shell
-/where/your/privider/install/ownprovider
+/where/your/provider/is/installed/ownprovider
 ```
 
 # Push a Message
 ```shell
-curl -X POST "http://127.0.0.1:9527/api/notify" -d 'topic=YourBundleId&token=YourDeviceToken&payload={"aps":{"alert":"Hello"}}'
+curl -X POST "http://127.0.0.1:27953/api/notify" -d 'topic=YourBundleId&token=YourDeviceToken&payload=%7B%22aps%22:%7B%22alert%22:%22Hello%22%7D%7D'
 ```
 
-# Building...

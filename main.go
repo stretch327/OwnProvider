@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	logger, err := os.OpenFile("/tmp/log_ownprovider_inner.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+	logger, err := os.OpenFile("/var/log/ownprovider.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 	if nil != err {
 		fmt.Println("Can not open log file")
 	}
@@ -32,7 +32,7 @@ func main() {
 	log.Println("------------------------------------------")
 
 	// Home Page
-	http.HandleFunc("/ownprovider/inner/push", Push)
+	http.HandleFunc("/api/notify", Push)
 
 	// Server
 	http.ListenAndServe(":27953", nil)
@@ -45,20 +45,23 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	pushType := r.FormValue("voip")
 	deviceToken := r.FormValue("token")
 	payload := r.FormValue("payload")
+	topic := r.FormValue("topic")
+	expiration := r.FormValue("exp")
+	priority := r.FormValue("priority")
+	collapseid := r.FormValue("collapseid")
+	iss := r.FormValue("teamid")
+	key := r.FormValue("keyid")
 
-	apnsTopic := "com.angularcorp.iCupid"
-	if "voip" != pushType {
+	if "" != pushType {
 		pushType = "alert"
-	} else {
-		apnsTopic = "com.angularcorp.iCupid.voip"
 	}
 
 	jwtHeader := jwt.Header{
 		Alg: "ES256",
-		Kid: "***",
+		Kid: key,
 	}
 	jwtPayload := jwt.Payload{
-		Iss: "***",
+		Iss: iss,
 		Iat: time.Now().Unix(),
 	}
 
@@ -69,7 +72,6 @@ func Push(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	kind := "UNKNOWN"
 	apnsId := uuid.New().String()
 	var result map[string]interface{}
 	json.Unmarshal([]byte(payload), &result)
@@ -78,11 +80,11 @@ func Push(w http.ResponseWriter, r *http.Request) {
 		if nil != aps["type"] {
 			tp := aps["type"].(float64)
 			if 2 == tp {
-				kind = "CHAT"
+				//kind = "CHAT"
 			} else if 3 == tp {
-				kind = "ADMIRER"
+				//kind = "ADMIRER"
 			} else if 4 == tp {
-				kind = "GIFTSENT"
+				//kind = "GIFTSENT"
 			}
 		}
 
@@ -100,10 +102,10 @@ func Push(w http.ResponseWriter, r *http.Request) {
 		Authorization:  "bearer " + jwToken,
 		ApnsPushType:   pushType, // alert | background | voip | complication | fileprovider | mdm
 		ApnsId:         apnsId,
-		ApnsExpiration: "0",
-		ApnsPriority:   "10",
-		ApnsTopic:      apnsTopic,
-		//ApnsCollapseId: "",
+		ApnsExpiration: expiration,
+		ApnsPriority:   priority,
+		ApnsTopic:      topic,
+		ApnsCollapseId: collapseid,
 	}
 	httpHeader, err := h.Build()
 
@@ -124,10 +126,10 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	resp.Body.Close()
 
 	if 200 == resp.StatusCode {
-		log.Println(deviceToken + "|" + kind + "|" + strings.Join(resp.Header["Apns-Id"], " "))
+		//log.Println(deviceToken + "|" + kind + "|" + strings.Join(resp.Header["Apns-Id"], " "))
+		w.Write([]byte("SUCCESS|" + deviceToken + "|" + strings.Join(resp.Header["Apns-Id"], " ") + "\n"))
 	} else {
-		log.Println(deviceToken + "|" + kind + "|" + resp.Status + ":" + string(respHttpBody[:]))
+		//log.Println(deviceToken + "|" + kind + "|" + resp.Status + ":" + string(respHttpBody[:]))
+		w.Write([]byte("FAIL|" + deviceToken + "|" + resp.Status + "|" + string(respHttpBody[:]) + "\n"))
 	}
-
-	w.Write([]byte("Push Success"))
 }
