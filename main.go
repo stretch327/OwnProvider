@@ -37,7 +37,8 @@ func main() {
 	// Server
 	http.ListenAndServe(":27953", nil)
 
-	fmt.Println("OwnProvider inner only server ready!!!")
+	// This doesn't print until after we quit
+	// fmt.Println("OwnProvider inner only server ready!!!")
 }
 
 func Push(w http.ResponseWriter, r *http.Request) {
@@ -126,10 +127,10 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	resp.Body.Close()
 
 	if 200 == resp.StatusCode {
-		//log.Println(deviceToken + "|" + kind + "|" + strings.Join(resp.Header["Apns-Id"], " "))
+		log.Println(deviceToken + "|" + strings.Join(resp.Header["Apns-Id"], " "))
 		w.Write([]byte("SUCCESS|" + deviceToken + "|" + strings.Join(resp.Header["Apns-Id"], " ") + "\n"))
 	} else {
-		//log.Println(deviceToken + "|" + kind + "|" + resp.Status + ":" + string(respHttpBody[:]))
+		log.Println(deviceToken + "|" + resp.Status + ":" + string(respHttpBody[:]))
 		w.Write([]byte("FAIL|" + deviceToken + "|" + resp.Status + "|" + string(respHttpBody[:]) + "\n"))
 	}
 }
