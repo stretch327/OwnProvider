@@ -57,13 +57,17 @@ func Push(w http.ResponseWriter, r *http.Request) {
 		pushType = "alert"
 	}
 
+	now := time.Now()
+	duration, _ := time.ParseDuration("20m")
+	roundedTime := now.Round(duration) // Restrict token renewal to every 20 minutes (Apple's minimum)
+
 	jwtHeader := jwt.Header{
 		Alg: "ES256",
 		Kid: key,
 	}
 	jwtPayload := jwt.Payload{
 		Iss: iss,
-		Iat: time.Now().Unix(),
+		Iat: roundedTime.Unix(),
 	}
 
 	jwToken, err := jwt.Token(jwtHeader, jwtPayload, "")
