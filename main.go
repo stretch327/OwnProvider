@@ -46,7 +46,7 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	pushType := r.FormValue("voip")
 	deviceToken := r.FormValue("token")
 	payload := r.FormValue("payload")
-	topic := r.FormValue("topic")
+	topic := r.FormValue("bundleid")
 	expiration := r.FormValue("exp")
 	priority := r.FormValue("priority")
 	collapseid := r.FormValue("collapseid")
