@@ -43,7 +43,7 @@ func main() {
 
 func Push(w http.ResponseWriter, r *http.Request) {
 	env := r.FormValue("env")
-	pushType := r.FormValue("voip")
+	pushType := r.FormValue("type")
 	deviceToken := r.FormValue("token")
 	payload := r.FormValue("payload")
 	topic := r.FormValue("bundleid")
@@ -53,7 +53,8 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	iss := r.FormValue("teamid")
 	key := r.FormValue("keyid")
 
-	if "" != pushType {
+	// if no pushType was specified, assume alert
+	if "" == pushType {
 		pushType = "alert"
 	}
 
