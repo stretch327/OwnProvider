@@ -17,8 +17,6 @@ import (
 func main() {
 	fmt.Println("OwnProvider inner only starting...")
 
-	p8path := os.Getenv("OWNPROVIDERP8")
-
 	logger, err := os.OpenFile("/var/log/ownprovider.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 	if nil != err {
 		fmt.Println("Can not open log file")
@@ -70,11 +68,11 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	// Load the p8 certificate
 	// Look for the path in the parameters first
 	p8cert := r.FormValue("p8")
-	if p8cert == "" {
+	if "" == p8cert {
 		// Then the environment variable
-		p8cert := p8path
+		p8cert = os.Getenv("OWNPROVIDERP8")
 	}
-	if p8cert == "" {
+	if "" == p8cert {
 		log.Println("Error: ENV - OWNPROVIDERP8 and p8 variable are not defined")
 		return
 	}
