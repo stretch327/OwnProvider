@@ -125,7 +125,7 @@ func Push(w http.ResponseWriter, r *http.Request) {
 	resp, err := t.Notify()
 
 	if nil != err {
-		log.Printf("Network erro: %v", err)
+		log.Printf("Network error: %v", err)
 	}
 
 	respHttpBody, err := ioutil.ReadAll(resp.Body)
