@@ -24,7 +24,7 @@ func Sign(header string, playload string, keyfile string) (string, error) {
 	hash := h.Sum(nil)
 	// Read private key content from file
 	p8 := keyfile
-	if "" != keyfile {
+	if "" == keyfile {
 		p8 = os.Getenv("OWNPROVIDERP8")
 	}
 	data, err := ioutil.ReadFile(p8)
